@@ -7,8 +7,8 @@ if (window.location.hostname === 'localhost') {
   // Development - use proxy set up in vite.config.js
   baseURL = '/api';
 } else {
-  // Production - direct API URL
-  baseURL = 'https://crud-api-deployment.vercel.app/api'; 
+  // Production - direct API URL without /api path since it's included in the routes
+  baseURL = 'https://crud-api-deployment.vercel.app'; 
 }
 
 const api = axios.create({
