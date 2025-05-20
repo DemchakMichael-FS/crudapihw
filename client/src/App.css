@@ -31,17 +31,20 @@ body {
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 20px;
+  box-sizing: border-box;
 }
 
 .app {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+  width: 100%;
 }
 
 .main-content {
   flex: 1;
   padding: 2rem 0;
+  width: 100%;
 }
 
 /* Navbar Styles */
@@ -50,6 +53,7 @@ body {
   color: white;
   padding: 1rem 0;
   box-shadow: var(--shadow);
+  width: 100%;
 }
 
 .navbar .container {
@@ -211,6 +215,7 @@ body {
 /* Home Page Styles */
 .home-page {
   padding: 1rem 0;
+  width: 100%;
 }
 
 .page-header {
@@ -228,6 +233,7 @@ body {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 2rem;
+  width: 100%;
 }
 
 .item-card {
@@ -236,6 +242,7 @@ body {
   box-shadow: var(--shadow);
   padding: 1.5rem;
   transition: transform 0.3s;
+  width: 100%;
 }
 
 .item-card:hover {

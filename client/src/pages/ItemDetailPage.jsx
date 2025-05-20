@@ -5,7 +5,7 @@ import { itemService } from '../services/api';
 const ItemDetailPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  
+
   const [item, setItem] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -72,45 +72,47 @@ const ItemDetailPage = () => {
 
   return (
     <div className="item-detail-page">
-      <div className="page-header">
-        <h1>{item.name}</h1>
-        <div className="item-actions">
-          <Link to="/" className="btn btn-secondary">Back to List</Link>
-          <Link to={`/edit/${id}`} className="btn btn-edit">Edit</Link>
-          <button onClick={handleDelete} className="btn btn-delete">Delete</button>
+      <div className="container">
+        <div className="page-header">
+          <h1>{item.name}</h1>
+          <div className="item-actions">
+            <Link to="/" className="btn btn-secondary">Back to List</Link>
+            <Link to={`/edit/${id}`} className="btn btn-edit">Edit</Link>
+            <button onClick={handleDelete} className="btn btn-delete">Delete</button>
+          </div>
         </div>
-      </div>
 
-      <div className="item-detail-card">
-        <div className="item-info">
-          <div className="info-group">
-            <h3>Description</h3>
-            <p>{item.description || 'No description provided.'}</p>
-          </div>
+        <div className="item-detail-card">
+          <div className="item-info">
+            <div className="info-group">
+              <h3>Description</h3>
+              <p>{item.description || 'No description provided.'}</p>
+            </div>
 
-          <div className="info-row">
-            <div className="info-group">
-              <h3>Price</h3>
-              <p className="price">${item.price}</p>
-            </div>
-            
-            <div className="info-group">
-              <h3>Quantity</h3>
-              <p>{item.quantity} units</p>
-            </div>
-          </div>
+            <div className="info-row">
+              <div className="info-group">
+                <h3>Price</h3>
+                <p className="price">${item.price}</p>
+              </div>
 
-          <div className="info-row">
-            <div className="info-group">
-              <h3>Status</h3>
-              <p className={`status ${item.isAvailable ? 'available' : 'unavailable'}`}>
-                {item.isAvailable ? 'Available' : 'Out of Stock'}
-              </p>
+              <div className="info-group">
+                <h3>Quantity</h3>
+                <p>{item.quantity} units</p>
+              </div>
             </div>
-            
-            <div className="info-group">
-              <h3>Added On</h3>
-              <p>{formattedDate}</p>
+
+            <div className="info-row">
+              <div className="info-group">
+                <h3>Status</h3>
+                <p className={`status ${item.isAvailable ? 'available' : 'unavailable'}`}>
+                  {item.isAvailable ? 'Available' : 'Out of Stock'}
+                </p>
+              </div>
+
+              <div className="info-group">
+                <h3>Added On</h3>
+                <p>{formattedDate}</p>
+              </div>
             </div>
           </div>
         </div>
