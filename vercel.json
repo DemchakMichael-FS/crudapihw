@@ -4,35 +4,18 @@
     {
       "src": "api/**/*.js",
       "use": "@vercel/node"
-    },
-    {
-      "src": "client/package.json",
-      "use": "@vercel/static-build",
-      "config": {
-        "distDir": "dist",
-        "buildCommand": "cd client && npm install && npm run build"
-      }
     }
   ],
   "routes": [
     {
-      "src": "/api/(.*)",
-      "dest": "/api/$1",
+      "src": "/(.*)",
+      "dest": "/api/index.js",
       "headers": {
         "Access-Control-Allow-Credentials": "true",
         "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Methods": "GET,OPTIONS,PATCH,DELETE,POST,PUT",
         "Access-Control-Allow-Headers": "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization"
       }
-    },
-    {
-      "src": "/(.*\\.(js|css|png|jpg|jpeg|svg|ico))",
-      "dest": "/client/dist/$1"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/client/dist/index.html"
     }
-  ],
-  "outputDirectory": "client/dist"
+  ]
 }

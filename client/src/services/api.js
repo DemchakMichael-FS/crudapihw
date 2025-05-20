@@ -1,8 +1,8 @@
 import axios from 'axios';
 
-// Create an axios instance with a direct URL
+// Create an axios instance with a direct URL to the API deployment
 const api = axios.create({
-  baseURL: 'https://crud-api-deployment.vercel.app/api',
+  baseURL: 'https://crud-api-deployment-api.vercel.app/api',
   headers: {
     'Content-Type': 'application/json',
   },
