@@ -12,9 +12,10 @@ const app = express();
 
 // Middleware
 app.use(cors({
-  origin: ['http://localhost:5173', 'http://localhost:3000'], // Allow React dev server
+  origin: ['http://localhost:5173', 'http://localhost:3000', 'https://crud-api-deployment.vercel.app', 'https://*.vercel.app'], // Allow React dev server and Vercel domains
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true
 }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -41,14 +42,6 @@ const connectDB = async () => {
   }
 };
 
-// Start server
-const PORT = process.env.PORT || 5000;
-const startServer = () => {
-  app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-  });
-};
-
 // Serve static assets in production
 if (process.env.NODE_ENV === 'production' || process.env.VERCEL) {
   // Set static folder
@@ -60,9 +53,17 @@ if (process.env.NODE_ENV === 'production' || process.env.VERCEL) {
   });
 }
 
-// Initialize everything
-connectDB().then(() => {
-  startServer();
-});
+// For local development, start the server
+if (process.env.NODE_ENV !== 'production' && !process.env.VERCEL) {
+  const PORT = process.env.PORT || 5000;
+  connectDB().then(() => {
+    app.listen(PORT, () => {
+      console.log(`Server running on port ${PORT}`);
+    });
+  });
+} else {
+  // For Vercel, just connect to the database
+  connectDB().catch(err => console.error('MongoDB connection error:', err));
+}
 
 module.exports = app; // For testing purposes

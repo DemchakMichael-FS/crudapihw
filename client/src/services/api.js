@@ -1,12 +1,22 @@
 import axios from 'axios';
 
+// Determine the base URL based on the environment
+const getBaseUrl = () => {
+  // For Vercel deployment
+  if (window.location.hostname.includes('vercel.app')) {
+    return `${window.location.origin}/api`;
+  }
+  // For local development
+  return '/api';
+};
+
 // Create an axios instance with a base URL
-// Using relative URL to work with the Vite proxy
 const api = axios.create({
-  baseURL: '/api',
+  baseURL: getBaseUrl(),
   headers: {
     'Content-Type': 'application/json',
   },
+  withCredentials: true,
 });
 
 // Item API services
