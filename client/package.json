@@ -6,12 +6,10 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "vercel-build": "vite build && cp -r public/* dist/",
     "lint": "eslint .",
     "preview": "vite preview"
   },
   "dependencies": {
-    "axios": "^1.9.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-router-dom": "^7.6.0"

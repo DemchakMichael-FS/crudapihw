@@ -10,6 +10,14 @@ This is my MERN stack inventory management app that I built for my class project
 - Full CRUD operations (Create, Read, Update, Delete)
 - Mobile-friendly responsive design
 
+## Features
+
+- View all inventory items on the home page
+- Add new items with name, description, quantity, price, and category
+- View detailed information about each item
+- Edit existing items
+- Delete items from the inventory
+
 ## How to Run It
 
 ### What You Need
@@ -26,59 +34,42 @@ This is my MERN stack inventory management app that I built for my class project
    cd CRUD-API-Deployment
    ```
 
-2. Install everything
+2. Install backend dependencies
    ```
+   cd vercel-mern-app/api
    npm install
    ```
 
-3. Set up your database
-   Create a `.env` file with:
+3. Install frontend dependencies
    ```
-   PORT=5000
-   MONGO_URI=your_mongodb_connection_string
-   NODE_ENV=development
+   cd ../client
+   npm install
    ```
 
-4. Start it up
+4. Set up your database
+   Create a `.env` file in the api directory with:
    ```
+   MONGODB_URI=your_mongodb_connection_string
+   ```
+
+5. Start the backend
+   ```
+   cd ../api
+   node index.js
+   ```
+
+6. Start the frontend
+   ```
+   cd ../client
    npm run dev
    ```
 
-## API Routes
-
-| Method | Route          | What it does       |
-|--------|----------------|-------------------|
-| GET    | /api/items     | Gets all items    |
-| GET    | /api/items/:id | Gets one item     |
-| POST   | /api/items     | Creates an item   |
-| PUT    | /api/items/:id | Updates an item   |
-| DELETE | /api/items/:id | Deletes an item   |
-
-## How I Organized My Code
-
-I kept the frontend (React) and backend (Express) in the same repository but separated them clearly:
-
-- `client/` folder has all the React code
-- `src/` folder has all the Express API code
-- I used a model-view-controller pattern for the backend
-
 ## Deployment
 
-I deployed this app on Vercel. Here's how I did it:
+I deployed this app on Vercel:
 
-1. Connected my GitHub repo to Vercel
-2. Added my MongoDB Atlas connection string as an environment variable
-3. Set NODE_ENV to "production"
-
-The app automatically deploys whenever I push changes to GitHub.
-
-## Future Plans
-
-I'd like to add:
-- User login and authentication
-- Better filtering and search
-- Pagination for when the list gets long
-- More comprehensive testing
+1. Frontend: https://inventory-manager.vercel.app
+2. Backend API: https://inventory-manager-api.vercel.app
 
 ## License
 

@@ -1,11 +1,11 @@
 {
-  "name": "crudapi",
+  "name": "inventory-manager",
   "version": "1.0.0",
-  "description": "A RESTful CRUD API for managing items",
-  "main": "src/server.js",
+  "description": "A MERN stack inventory management application",
+  "main": "api/index.js",
   "scripts": {
-    "start": "node src/server.js",
-    "server": "nodemon src/server.js",
+    "start": "node api/index.js",
+    "server": "nodemon api/index.js",
     "client": "cd client && npm run dev",
     "dev": "concurrently \"npm run server\" \"npm run client\"",
     "build": "cd client && npm install && npm run build",

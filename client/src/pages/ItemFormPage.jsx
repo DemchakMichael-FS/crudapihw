@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { itemService } from '../services/api';
+import './ItemFormPage.css';
 
-const ItemFormPage = () => {
+function ItemFormPage({ refreshItems }) {
   const { id } = useParams();
   const navigate = useNavigate();
   const isEditMode = !!id;
@@ -12,9 +13,8 @@ const ItemFormPage = () => {
     description: '',
     quantity: 0,
     price: 0,
-    isAvailable: true
+    category: ''
   });
-
   const [loading, setLoading] = useState(isEditMode);
   const [error, setError] = useState(null);
   const [submitting, setSubmitting] = useState(false);
@@ -25,21 +25,18 @@ const ItemFormPage = () => {
 
       try {
         setLoading(true);
-        const response = await itemService.getItemById(id);
-        const item = response.data;
-
+        const data = await itemService.getItemById(id);
         setFormData({
-          name: item.name,
-          description: item.description || '',
-          quantity: item.quantity,
-          price: item.price || 0,
-          isAvailable: item.isAvailable
+          name: data.name,
+          description: data.description,
+          quantity: data.quantity,
+          price: data.price,
+          category: data.category
         });
-
         setError(null);
       } catch (err) {
-        setError('Failed to fetch item details. Please try again.');
-        console.error('Error fetching item:', err);
+        setError('Failed to fetch item details. Please try again later.');
+        console.error(err);
       } finally {
         setLoading(false);
       }
@@ -49,37 +46,46 @@ const ItemFormPage = () => {
   }, [id, isEditMode]);
 
   const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setFormData(prevData => ({
-      ...prevData,
-      [name]: type == 'checkbox' ? checked : value
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: name === 'quantity' || name === 'price' ? parseFloat(value) : value
     }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // Validate form
+    if (!formData.name || !formData.description || !formData.category) {
+      setError('Please fill in all required fields.');
+      return;
+    }
+
+    if (formData.quantity < 0) {
+      setError('Quantity cannot be negative.');
+      return;
+    }
+
+    if (formData.price < 0) {
+      setError('Price cannot be negative.');
+      return;
+    }
 
     try {
       setSubmitting(true);
-      setError(null);
-
-      // Convert string values to appropriate types
-      const itemData = {
-        ...formData,
-        quantity: Number(formData.quantity),
-        price: Number(formData.price)
-      };
-
+      
       if (isEditMode) {
-        await itemService.updateItem(id, itemData);
+        await itemService.updateItem(id, formData);
       } else {
-        await itemService.createItem(itemData);
+        await itemService.createItem(formData);
       }
-
+      
+      refreshItems();
       navigate('/');
     } catch (err) {
-      setError(`Failed to ${isEditMode ? 'update' : 'create'} item. Please check your inputs and try again.`);
-      console.error(`Error ${isEditMode ? 'updating' : 'creating'} item:`, err);
+      setError(`Failed to ${isEditMode ? 'update' : 'create'} item. Please try again.`);
+      console.error(err);
     } finally {
       setSubmitting(false);
     }
@@ -90,54 +96,59 @@ const ItemFormPage = () => {
   }
 
   return (
-    <div className="form-page">
-      <div className="container">
+    <div className="item-form-page">
+      <div className="page-header">
         <h1>{isEditMode ? 'Edit Item' : 'Add New Item'}</h1>
+      </div>
 
-        {error && <div className="error-message">{error}</div>}
+      {error && (
+        <div className="alert alert-error">
+          {error}
+        </div>
+      )}
 
-        <form onSubmit={handleSubmit} className="item-form">
+      <form className="item-form" onSubmit={handleSubmit}>
+        <div className="form-group">
+          <label htmlFor="name">Name *</label>
+          <input
+            type="text"
+            id="name"
+            name="name"
+            value={formData.name}
+            onChange={handleChange}
+            required
+          />
+        </div>
+
+        <div className="form-group">
+          <label htmlFor="description">Description *</label>
+          <textarea
+            id="description"
+            name="description"
+            value={formData.description}
+            onChange={handleChange}
+            rows="4"
+            required
+          ></textarea>
+        </div>
+
+        <div className="form-row">
           <div className="form-group">
-            <label htmlFor="name">Name</label>
-            <input
-              type="text"
-              id="name"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              required
-              className="form-control"
-            />
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="description">Description</label>
-            <textarea
-              id="description"
-              name="description"
-              value={formData.description}
-              onChange={handleChange}
-              className="form-control"
-              rows="3"
-            />
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="quantity">Quantity</label>
+            <label htmlFor="quantity">Quantity *</label>
             <input
               type="number"
               id="quantity"
               name="quantity"
               value={formData.quantity}
               onChange={handleChange}
-              required
               min="0"
-              className="form-control"
+              step="1"
+              required
             />
           </div>
 
           <div className="form-group">
-            <label htmlFor="price">Price</label>
+            <label htmlFor="price">Price ($) *</label>
             <input
               type="number"
               id="price"
@@ -146,43 +157,32 @@ const ItemFormPage = () => {
               onChange={handleChange}
               min="0"
               step="0.01"
-              className="form-control"
+              required
             />
           </div>
+        </div>
 
-          <div className="form-group checkbox">
-            <input
-              type="checkbox"
-              id="isAvailable"
-              name="isAvailable"
-              checked={formData.isAvailable}
-              onChange={handleChange}
-              className="form-check"
-            />
-            <label htmlFor="isAvailable">Available</label>
-          </div>
+        <div className="form-group">
+          <label htmlFor="category">Category *</label>
+          <input
+            type="text"
+            id="category"
+            name="category"
+            value={formData.category}
+            onChange={handleChange}
+            required
+          />
+        </div>
 
-          <div className="form-actions">
-            <button
-              type="button"
-              onClick={() => navigate('/')}
-              className="btn btn-secondary"
-              disabled={submitting}
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className="btn btn-primary"
-              disabled={submitting}
-            >
-              {submitting ? 'Saving...' : isEditMode ? 'Update Item' : 'Add Item'}
-            </button>
-          </div>
-        </form>
-      </div>
+        <div className="form-actions">
+          <Link to="/" className="btn btn-secondary">Cancel</Link>
+          <button type="submit" className="btn btn-primary" disabled={submitting}>
+            {submitting ? 'Saving...' : isEditMode ? 'Update Item' : 'Add Item'}
+          </button>
+        </div>
+      </form>
     </div>
   );
-};
+}
 
 export default ItemFormPage;

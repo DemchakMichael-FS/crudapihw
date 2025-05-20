@@ -1,20 +1,18 @@
 import { Link } from 'react-router-dom';
+import './Navbar.css';
 
-const Navbar = () => {
+function Navbar() {
   return (
-    <nav className="navbar" style={{ width: '100%' }}>
-      <div className="container">
-        <Link to="/" className="navbar-brand">
-          <span className="brand-text">Inventory Manager</span>
-        </Link>
-
-        <div className="nav-links">
-          <Link to="/" className="nav-link">Home</Link>
-          <Link to="/add" className="nav-link">Add Item</Link>
+    <nav className="navbar">
+      <div className="navbar-container">
+        <Link to="/" className="navbar-brand">Inventory Manager</Link>
+        <div className="navbar-menu">
+          <Link to="/" className="navbar-item">Home</Link>
+          <Link to="/add-item" className="navbar-item">Add Item</Link>
         </div>
       </div>
     </nav>
   );
-};
+}
 
 export default Navbar;
