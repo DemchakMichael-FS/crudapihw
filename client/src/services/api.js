@@ -4,8 +4,8 @@ import axios from 'axios';
 const getBaseUrl = () => {
   // For production deployment
   if (import.meta.env.PROD) {
-    // Use a separate backend URL for production
-    return 'https://crud-api-backend.vercel.app/api';
+    // Use a direct API URL for production
+    return 'https://crud-api-deployment-backend.vercel.app/api';
   }
   // For local development
   return '/api';
@@ -17,7 +17,7 @@ const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
-  withCredentials: true,
+  withCredentials: false,
 });
 
 // Item API services

@@ -12,19 +12,96 @@ const app = express();
 
 // Middleware
 app.use(cors({
-  origin: ['https://crud-api-deployment.vercel.app', 'http://localhost:5173', 'http://localhost:3000'],
+  origin: '*', // Allow all origins for now to debug
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: true
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Import routes
-const itemRoutes = require('../src/routes/items');
+// Define routes directly
+const router = express.Router();
+const Item = require('./Item');
+
+// Get all items
+router.get('/', async (req, res) => {
+  try {
+    const items = await Item.find().sort({ createdAt: -1 });
+    res.json(items);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// Get a single item
+router.get('/:id', async (req, res) => {
+  try {
+    const item = await Item.findById(req.params.id);
+    if (!item) {
+      return res.status(404).json({ message: 'Item not found' });
+    }
+    res.json(item);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// Create a new item
+router.post('/', async (req, res) => {
+  const item = new Item({
+    name: req.body.name,
+    description: req.body.description,
+    quantity: req.body.quantity,
+    price: req.body.price,
+    category: req.body.category
+  });
+
+  try {
+    const newItem = await item.save();
+    res.status(201).json(newItem);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
+// Update an item
+router.put('/:id', async (req, res) => {
+  try {
+    const item = await Item.findById(req.params.id);
+    if (!item) {
+      return res.status(404).json({ message: 'Item not found' });
+    }
+
+    if (req.body.name) item.name = req.body.name;
+    if (req.body.description) item.description = req.body.description;
+    if (req.body.quantity != null) item.quantity = req.body.quantity;
+    if (req.body.price != null) item.price = req.body.price;
+    if (req.body.category) item.category = req.body.category;
+
+    const updatedItem = await item.save();
+    res.json(updatedItem);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
+// Delete an item
+router.delete('/:id', async (req, res) => {
+  try {
+    const item = await Item.findById(req.params.id);
+    if (!item) {
+      return res.status(404).json({ message: 'Item not found' });
+    }
+
+    await Item.findByIdAndDelete(req.params.id);
+    res.json({ message: 'Item deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
 
 // Use routes
-app.use('/api/items', itemRoutes);
+app.use('/api/items', router);
 
 // API info route
 app.get('/api', (req, res) => {
