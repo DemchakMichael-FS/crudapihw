@@ -5,10 +5,21 @@
   "main": "src/server.js",
   "scripts": {
     "start": "node src/server.js",
-    "dev": "nodemon src/server.js",
+    "server": "nodemon src/server.js",
+    "client": "cd client && npm run dev",
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "build": "cd client && npm run build",
+    "install-client": "cd client && npm install",
+    "heroku-postbuild": "npm run install-client && npm run build",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": ["api", "crud", "express", "mongodb", "rest"],
+  "keywords": [
+    "api",
+    "crud",
+    "express",
+    "mongodb",
+    "rest"
+  ],
   "author": "Michael Demchak",
   "license": "ISC",
   "type": "commonjs",
@@ -19,6 +30,7 @@
     "mongoose": "^8.15.0"
   },
   "devDependencies": {
+    "concurrently": "^9.1.2",
     "nodemon": "^3.1.10"
   }
 }
