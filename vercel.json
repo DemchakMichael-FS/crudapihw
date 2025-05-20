@@ -17,6 +17,14 @@
       "dest": "/api/index.js"
     },
     {
+      "src": "/favicon.ico",
+      "dest": "/client/favicon.ico"
+    },
+    {
+      "src": "/assets/(.*)",
+      "dest": "/client/assets/$1"
+    },
+    {
       "src": "/(.*\\.(js|css|ico|png|jpg|svg|json))",
       "dest": "/client/$1"
     },
