@@ -10,7 +10,7 @@
     "dev": "concurrently \"npm run server\" \"npm run client\"",
     "build": "cd client && npm install && npm run build",
     "install-client": "cd client && npm install",
-    "vercel-build": "npm run build",
+    "vercel-build": "echo 'Vercel build command executed'",
     "postinstall": "npm run install-client",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
