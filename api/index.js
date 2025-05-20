@@ -8,13 +8,27 @@ const Item = require('./Item');
 // Initialize express app
 const app = express();
 
-// Middleware
+// Configure CORS for all routes
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET, PUT, POST, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+  
+  // Handle preflight requests
+  if (req.method === 'OPTIONS') {
+    res.sendStatus(200);
+  } else {
+    next();
+  }
+});
+
+// Enable CORS middleware
 app.use(cors({
-  origin: ['https://crud-api-deployment.vercel.app', 'https://crud-api-deployment-client.vercel.app', '*'],
-  credentials: true,
+  origin: '*',
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Origin']
 }));
+
 app.use(express.json());
 
 // Connect to MongoDB - optimized for serverless environment

@@ -1,13 +1,20 @@
 import axios from 'axios';
 
+// API URL based on environment
+const API_URL = 'https://crud-api-deployment.vercel.app';
+
 // Create an axios instance with a base URL
 const api = axios.create({
-  baseURL: import.meta.env.PROD 
-    ? 'https://crud-api-deployment.vercel.app/api'
-    : '/api',
+  baseURL: `${API_URL}/api`,
   headers: {
     'Content-Type': 'application/json',
   }
+});
+
+// Add request interceptor to handle errors
+api.interceptors.request.use(config => {
+  console.log('API Request:', config.url);
+  return config;
 });
 
 // Item API services
