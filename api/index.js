@@ -14,12 +14,36 @@ app.use(cors({
 }));
 app.use(express.json());
 
-// Connect to MongoDB
+// Connect to MongoDB - optimized for serverless environment
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://Zecru:Redzone12@crudapi.8k8ldbq.mongodb.net/?retryWrites=true&w=majority&appName=Crudapi';
 
-mongoose.connect(MONGODB_URI)
-  .then(() => console.log('MongoDB connected'))
-  .catch(err => console.error('MongoDB connection error:', err));
+// Cache the database connection
+let cachedDb = null;
+
+async function connectToDatabase() {
+  if (cachedDb) {
+    return cachedDb;
+  }
+  
+  // Set the connection options
+  const opts = {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  };
+
+  try {
+    const conn = await mongoose.connect(MONGODB_URI, opts);
+    cachedDb = conn;
+    console.log('MongoDB connected');
+    return conn;
+  } catch (error) {
+    console.error('MongoDB connection error:', error);
+    throw error;
+  }
+}
+
+// Connect to the database immediately
+connectToDatabase().catch(console.error);
 
 // API Routes
 

@@ -3,7 +3,7 @@ import axios from 'axios';
 // Create an axios instance with a base URL
 const api = axios.create({
   baseURL: import.meta.env.PROD 
-    ? 'https://vercel-mern-app-api.vercel.app/api' 
+    ? 'https://crud-api-deployment.vercel.app/api' 
     : '/api',
   headers: {
     'Content-Type': 'application/json',
