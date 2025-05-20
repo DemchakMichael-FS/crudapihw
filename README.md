@@ -93,50 +93,52 @@ crudapi/
 ├── .env                     # Environment variables
 ├── .gitignore               # Git ignore file
 ├── package.json             # Backend dependencies
-├── Procfile                 # Heroku deployment
+├── vercel.json              # Vercel deployment configuration
 └── README.md                # Documentation
 ```
 
 ## Deployment
 
-This application can be deployed to various platforms. Here's how to deploy it to Heroku:
+This application can be deployed to Vercel. Here's how:
 
-1. Create a Heroku account and install the Heroku CLI
-2. Login to Heroku CLI:
-   ```
-   heroku login
-   ```
+1. Create a Vercel account at [vercel.com](https://vercel.com)
 
-3. Create a new Heroku app:
+2. Install the Vercel CLI:
    ```
-   heroku create your-app-name
+   npm install -g vercel
    ```
 
-4. Add MongoDB Atlas as your database:
-   - Create a MongoDB Atlas account
-   - Create a new cluster
-   - Get your connection string
-   - Add it to Heroku config vars:
-     ```
-     heroku config:set MONGO_URI=your_mongodb_connection_string
-     ```
-
-5. Set the Node environment to production:
+3. Login to Vercel:
    ```
-   heroku config:set NODE_ENV=production
+   vercel login
    ```
 
-6. Push to Heroku:
+4. Deploy the application:
    ```
-   git push heroku main
-   ```
-
-7. Open your deployed application:
-   ```
-   heroku open
+   vercel
    ```
 
-The application is now deployed and accessible online!
+5. Add your MongoDB Atlas connection string as an environment variable:
+   - Go to your Vercel project dashboard
+   - Navigate to Settings > Environment Variables
+   - Add a new variable with the name `MONGO_URI` and your MongoDB connection string as the value
+   - Add another variable with the name `NODE_ENV` and the value `production`
+
+6. Redeploy the application to apply the environment variables:
+   ```
+   vercel --prod
+   ```
+
+The application will be deployed and accessible at the URL provided by Vercel.
+
+Alternatively, you can connect your GitHub repository to Vercel for automatic deployments:
+
+1. Push your code to GitHub
+2. Import your repository in the Vercel dashboard
+3. Configure the environment variables
+4. Deploy the application
+
+Vercel will automatically build and deploy your application whenever you push changes to your repository.
 
 ## Future Improvements
 

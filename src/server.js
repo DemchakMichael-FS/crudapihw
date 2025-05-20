@@ -50,7 +50,7 @@ const startServer = () => {
 };
 
 // Serve static assets in production
-if (process.env.NODE_ENV === 'production') {
+if (process.env.NODE_ENV === 'production' || process.env.VERCEL) {
   // Set static folder
   app.use(express.static(path.join(__dirname, '../client/dist')));
 
