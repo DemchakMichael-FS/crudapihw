@@ -2,9 +2,10 @@ import axios from 'axios';
 
 // Determine the base URL based on the environment
 const getBaseUrl = () => {
-  // For Vercel deployment
-  if (window.location.hostname.includes('vercel.app')) {
-    return `${window.location.origin}/api`;
+  // For production deployment
+  if (import.meta.env.PROD) {
+    // Use a separate backend URL for production
+    return 'https://crud-api-backend.vercel.app/api';
   }
   // For local development
   return '/api';
