@@ -1,19 +1,8 @@
 import axios from 'axios';
 
-// Determine the base URL based on the environment
-const getBaseUrl = () => {
-  // For production deployment
-  if (import.meta.env.PROD) {
-    // Use a direct API URL for production
-    return 'https://crud-api-deployment-backend.vercel.app/api';
-  }
-  // For local development
-  return '/api';
-};
-
-// Create an axios instance with a base URL
+// Create an axios instance with a direct URL
 const api = axios.create({
-  baseURL: getBaseUrl(),
+  baseURL: 'https://crud-api-deployment-backend.vercel.app/api',
   headers: {
     'Content-Type': 'application/json',
   },
