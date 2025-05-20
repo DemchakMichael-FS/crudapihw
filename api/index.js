@@ -1,7 +1,9 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
-const Item = require('./item');
+
+// Import the Item model with correct capitalization
+const Item = require('./Item');
 
 // Initialize express app
 const app = express();
