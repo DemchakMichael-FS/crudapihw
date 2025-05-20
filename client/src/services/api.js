@@ -1,20 +1,21 @@
 import axios from 'axios';
 
-// API URL based on environment
-const API_URL = 'https://crud-api-deployment.vercel.app';
-
 // Create an axios instance with a base URL
+let baseURL;
+
+if (window.location.hostname === 'localhost') {
+  // Development - use proxy set up in vite.config.js
+  baseURL = '/api';
+} else {
+  // Production - direct API URL
+  baseURL = 'https://crud-api-deployment.vercel.app/api'; 
+}
+
 const api = axios.create({
-  baseURL: `${API_URL}/api`,
+  baseURL,
   headers: {
     'Content-Type': 'application/json',
   }
-});
-
-// Add request interceptor to handle errors
-api.interceptors.request.use(config => {
-  console.log('API Request:', config.url);
-  return config;
 });
 
 // Item API services
