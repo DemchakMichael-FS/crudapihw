@@ -10,8 +10,8 @@ if (window.location.hostname === 'localhost' || window.location.hostname === '12
   // Development on mobile/network - direct API URL
   baseURL = 'http://192.168.68.69:3456/api';
 } else {
-  // Production - direct API URL without /api path since it's included in the routes
-  baseURL = 'https://crud-api-deployment.vercel.app';
+  // Production - use relative API path since both frontend and backend are on same domain
+  baseURL = '/api';
 }
 
 const api = axios.create({
