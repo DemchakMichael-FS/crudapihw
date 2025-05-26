@@ -1,30 +1,42 @@
 import axios from 'axios';
 
-// Create an axios instance with a base URL
-let baseURL;
-
-if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-  // Development on localhost - use proxy set up in vite.config.js
-  baseURL = '/api';
-} else if (window.location.hostname === '192.168.68.69') {
-  // Development on mobile/network - direct API URL
-  baseURL = 'http://192.168.68.69:3456/api';
-} else {
-  // Production - direct API URL without /api path since it's included in the routes
-  baseURL = 'https://crud-api-deployment.vercel.app';
-}
+// API Configuration
+const API_BASE_URL = 'http://192.168.68.69:3456/api'; // Your computer's IP address
+// This allows your iPhone to connect to your local API server
 
 const api = axios.create({
-  baseURL,
+  baseURL: API_BASE_URL,
+  timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
-  }
+  },
 });
 
-// Item API services
+// Types
+export interface Item {
+  _id: string;
+  name: string;
+  description: string;
+  quantity: number;
+  price: number;
+  category: string;
+  createdAt: string;
+}
+
+export interface CreateItemData {
+  name: string;
+  description: string;
+  quantity: number;
+  price: number;
+  category: string;
+}
+
+export interface UpdateItemData extends Partial<CreateItemData> {}
+
+// API Service
 export const itemService = {
   // Get all items
-  getAllItems: async () => {
+  getAllItems: async (): Promise<Item[]> => {
     try {
       const response = await api.get('/items');
       return response.data;
@@ -35,7 +47,7 @@ export const itemService = {
   },
 
   // Get a single item by ID
-  getItemById: async (id) => {
+  getItemById: async (id: string): Promise<Item> => {
     try {
       const response = await api.get(`/items/${id}`);
       return response.data;
@@ -46,7 +58,7 @@ export const itemService = {
   },
 
   // Create a new item
-  createItem: async (itemData) => {
+  createItem: async (itemData: CreateItemData): Promise<Item> => {
     try {
       const response = await api.post('/items', itemData);
       return response.data;
@@ -57,7 +69,7 @@ export const itemService = {
   },
 
   // Update an existing item
-  updateItem: async (id, itemData) => {
+  updateItem: async (id: string, itemData: UpdateItemData): Promise<Item> => {
     try {
       const response = await api.put(`/items/${id}`, itemData);
       return response.data;
@@ -68,10 +80,9 @@ export const itemService = {
   },
 
   // Delete an item
-  deleteItem: async (id) => {
+  deleteItem: async (id: string): Promise<void> => {
     try {
-      const response = await api.delete(`/items/${id}`);
-      return response.data;
+      await api.delete(`/items/${id}`);
     } catch (error) {
       console.error(`Error deleting item with ID ${id}:`, error);
       throw error;

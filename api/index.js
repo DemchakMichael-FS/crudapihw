@@ -13,7 +13,7 @@ app.use((req, res, next) => {
   res.header('Access-Control-Allow-Origin', '*');
   res.header('Access-Control-Allow-Methods', 'GET, PUT, POST, DELETE, OPTIONS');
   res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
-  
+
   // Handle preflight requests
   if (req.method === 'OPTIONS') {
     res.sendStatus(200);
@@ -41,7 +41,7 @@ async function connectToDatabase() {
   if (cachedDb) {
     return cachedDb;
   }
-  
+
   // Set the connection options
   const opts = {
     useNewUrlParser: true,
@@ -168,7 +168,7 @@ app.get('/', (req, res) => {
 });
 
 // For local development
-const PORT = 63333; // Using a very high port number to avoid conflicts
+const PORT = process.env.PORT || 3456;
 if (process.env.NODE_ENV !== 'production') {
   app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
