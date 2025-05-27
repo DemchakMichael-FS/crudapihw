@@ -101,6 +101,8 @@ npx expo start
 
 I deployed this app on Vercel with both frontend and backend working seamlessly. The project is structured for easy Vercel deployment with automatic builds.
 
+**Live Demo**: [https://crudapihw-git-production-michaels-projects-3fc8909e.vercel.app](https://crudapihw-git-production-michaels-projects-3fc8909e.vercel.app)
+
 ## Project Structure
 
 ```
