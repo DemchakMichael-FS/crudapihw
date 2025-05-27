@@ -7,8 +7,15 @@ const app = express();
 const PORT = process.env.PORT || 3456;
 
 // Middleware
+const allowedOrigins = [
+  'http://localhost:3000',
+  'http://localhost:3456',
+  'http://localhost:5888',
+  process.env.FRONTEND_URL || 'https://your-frontend.vercel.app'
+].filter(Boolean);
+
 app.use(cors({
-  origin: ['http://localhost:3000', 'http://localhost:3456'],
+  origin: allowedOrigins,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true
@@ -57,7 +64,7 @@ process.on('unhandledRejection', (error) => {
 
 const connectDB = async () => {
   console.log('Connecting to MongoDB...');
-  
+
   // Set up mongoose connection events
   mongoose.connection.on('connected', () => {
     console.log('Mongoose connected to MongoDB');
@@ -85,7 +92,7 @@ const connectDB = async () => {
       socketTimeoutMS: 45000, // 45 seconds timeout for socket operations
       family: 4, // Use IPv4, skip trying IPv6
     });
-    
+
     console.log('Successfully connected to MongoDB');
     return true;
   } catch (error) {
@@ -99,16 +106,16 @@ const connectDB = async () => {
 // Connect to DB and then start the server
 connectDB().then(() => {
   console.log('MongoDB connection established, starting server...');
-  
+
   // List all registered routes for debugging
   listRoutes();
-  
+
   // Start the server
   const server = app.listen(PORT, '0.0.0.0', () => {
     console.log(`Server is running on port ${PORT}`);
     console.log(`API available at http://localhost:${PORT}/api`);
     console.log(`Health check: http://localhost:${PORT}/api/health`);
-    
+
     // Print mongoose connection status
     console.log(`MongoDB connection state: ${mongoose.connection.readyState}`);
     console.log(`Available models: ${mongoose.modelNames().join(', ')}`);
@@ -134,7 +141,7 @@ connectDB().then(() => {
         throw error;
     }
   });
-  
+
 }).catch(error => {
   console.error('Failed to connect to MongoDB:', error);
   process.exit(1);
@@ -147,8 +154,8 @@ app.get('/api/health', async (req, res) => {
   try {
     // Check database connection
     await mongoose.connection.db.admin().ping();
-    
-    res.status(200).json({ 
+
+    res.status(200).json({
       status: 'ok',
       message: 'API and database are running',
       database: 'connected',
@@ -167,136 +174,11 @@ app.get('/api/health', async (req, res) => {
   }
 });
 
-// Item Schema
-const ItemSchema = new mongoose.Schema({
-  name: {
-    type: String,
-    required: true,
-    trim: true
-  },
-  description: {
-    type: String,
-    required: true,
-    trim: true
-  },
-  quantity: {
-    type: Number,
-    required: true,
-    min: 0
-  },
-  price: {
-    type: Number,
-    required: true,
-    min: 0
-  },
-  category: {
-    type: String,
-    required: true,
-    trim: true
-  },
-  createdAt: {
-    type: Date,
-    default: Date.now
-  }
-});
-
-const Item = mongoose.models.Item || mongoose.model('Item', ItemSchema);
+// Import routes
+const itemRoutes = require('./routes/items');
 
 // Routes
-
-// GET all items
-app.get('/api/items', async (req, res) => {
-  try {
-    console.log('Attempting to fetch items...');
-    console.log('Mongoose connection state:', mongoose.connection.readyState);
-    console.log('Mongoose models:', mongoose.modelNames());
-    
-    // Test the connection
-    await mongoose.connection.db.admin().ping();
-    console.log('MongoDB ping successful');
-    
-    const items = await Item.find().sort({ createdAt: -1 });
-    console.log('Successfully fetched items:', items.length);
-    res.status(200).json(items);
-  } catch (error) {
-    console.error('Error in GET /api/items:', error);
-    res.status(500).json({ 
-      message: 'Failed to fetch items',
-      error: error.message,
-      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined,
-      connectionState: mongoose.connection.readyState,
-      models: mongoose.modelNames(),
-      dbStats: mongoose.connection.db ? 'Database available' : 'Database not available'
-    });
-  }
-});
-
-// GET a single item by ID
-app.get('/api/items/:id', async (req, res) => {
-  try {
-    const item = await Item.findById(req.params.id);
-    if (!item) {
-      return res.status(404).json({ message: 'Item not found' });
-    }
-    res.status(200).json(item);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-});
-
-// POST a new item
-app.post('/api/items', async (req, res) => {
-  try {
-    const item = new Item({
-      name: req.body.name,
-      description: req.body.description,
-      quantity: req.body.quantity,
-      price: req.body.price,
-      category: req.body.category
-    });
-
-    const newItem = await item.save();
-    res.status(201).json(newItem);
-  } catch (error) {
-    res.status(400).json({ message: error.message });
-  }
-});
-
-// PUT update an item
-app.put('/api/items/:id', async (req, res) => {
-  try {
-    const item = await Item.findById(req.params.id);
-    if (!item) {
-      return res.status(404).json({ message: 'Item not found' });
-    }
-
-    if (req.body.name) item.name = req.body.name;
-    if (req.body.description) item.description = req.body.description;
-    if (req.body.quantity != null) item.quantity = req.body.quantity;
-    if (req.body.price != null) item.price = req.body.price;
-    if (req.body.category) item.category = req.body.category;
-
-    const updatedItem = await item.save();
-    res.status(200).json(updatedItem);
-  } catch (error) {
-    res.status(400).json({ message: error.message });
-  }
-});
-
-// DELETE an item
-app.delete('/api/items/:id', async (req, res) => {
-  try {
-    const item = await Item.findById(req.params.id);
-    if (!item) {
-      return res.status(404).json({ message: 'Item not found' });
-    }
-
-    await Item.findByIdAndDelete(req.params.id);
-    res.status(200).json({ message: 'Item deleted successfully' });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-});
+app.use('/api/items', itemRoutes);
 
 // API info route
 app.get('/api', (req, res) => {
@@ -319,17 +201,7 @@ app.get('/', (req, res) => {
   res.status(200).json({ message: 'Inventory API is running!' });
 });
 
-app.get('/api/health', (req, res) => {
-  res.status(200).json({ 
-    status: 'ok',
-    message: 'API health check passed',
-    timestamp: new Date().toISOString(),
-    mongodb: {
-      connected: mongoose.connection.readyState === 1,
-      state: mongoose.connection.readyState
-    }
-  });
-});
+
 
 // Handle OPTIONS requests
 app.options('*', (req, res) => {
