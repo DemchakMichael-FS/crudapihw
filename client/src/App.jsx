@@ -30,7 +30,7 @@ function App() {
         <footer className="footer">
           <div className="container">
             <p>&copy; 2025 Inventory Manager. All rights reserved.</p>
-            <p>Created by Michael Demchak</p>
+            <p>Created by Michael Demchak - Mobile Ready!</p>
           </div>
         </footer>
       </div>
