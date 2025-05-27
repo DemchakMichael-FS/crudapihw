@@ -70,3 +70,20 @@ Your React app will be available at:
 - **API Errors**: Verify MongoDB connection string in environment variables
 - **Routing Issues**: Ensure `vercel.json` configuration is correct
 - **CORS Issues**: API includes CORS middleware for cross-origin requests
+- **JSON BOM Errors**: If you see "Unexpected token" errors, ensure JSON files don't have BOM characters
+- **Output Directory Errors**: Verify that the client build creates a `dist` directory with `npm run build`
+
+### Common Fixes
+
+1. **BOM Character Issues**:
+   ```bash
+   # Recreate JSON files using Node.js to avoid BOM
+   node -e "const fs = require('fs'); const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8')); fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2), 'utf8');"
+   ```
+
+2. **Build Directory Issues**:
+   ```bash
+   # Test local build
+   cd client && npm run build
+   # Should create client/dist directory
+   ```
