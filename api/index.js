@@ -11,11 +11,23 @@ const allowedOrigins = [
   'http://localhost:3000',
   'http://localhost:3456',
   'http://localhost:5888',
+  'https://crudapihw-l3o4wif7e-michaels-projects-3fc8909e.vercel.app',
   process.env.FRONTEND_URL || 'https://your-frontend.vercel.app'
 ].filter(Boolean);
 
 app.use(cors({
-  origin: allowedOrigins,
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+
+    // Check if the origin is in our allowed list or matches Vercel pattern
+    if (allowedOrigins.includes(origin) || origin.includes('vercel.app')) {
+      return callback(null, true);
+    }
+
+    console.log('CORS blocked origin:', origin);
+    return callback(new Error('Not allowed by CORS'));
+  },
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true
