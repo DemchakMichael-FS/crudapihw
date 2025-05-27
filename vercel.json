@@ -19,12 +19,7 @@
       "dest": "/api/index.js"
     },
     {
-      "src": "/favicon.ico",
-      "dest": "/favicon.svg"
-    },
-    {
-      "src": "/assets/(.*)",
-      "dest": "/assets/$1"
+      "handle": "filesystem"
     },
     {
       "src": "/(.*)",
