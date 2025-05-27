@@ -3,13 +3,9 @@ import axios from 'axios';
 // Create an axios instance with a base URL
 let baseURL;
 
-if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-  // Development on localhost - use proxy set up in vite.config.js
-  baseURL = '/api';
-} else {
-  // Production - use relative API path since both frontend and backend are on same domain
-  baseURL = '/api';
-}
+// Use proxy in all environments for consistency
+// This will automatically route through Vite's proxy in development
+baseURL = '/api';
 
 const api = axios.create({
   baseURL,

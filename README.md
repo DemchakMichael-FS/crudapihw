@@ -116,6 +116,4 @@ I deployed this app on Vercel with both frontend and backend working seamlessly.
 └── package.json        # Root package with scripts
 ```
 
-## License
 
-This project is under the ISC License.
