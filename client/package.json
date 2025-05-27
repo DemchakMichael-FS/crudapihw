@@ -7,7 +7,7 @@
     "dev": "vite --port 5888 --host",
     "build": "vite build",
     "preview": "vite preview",
-    "vercel-build": "vite build"
+    "vercel-build": "vite build && cp -r dist/* ../"
   },
   "dependencies": {
     "react": "^18.2.0",
