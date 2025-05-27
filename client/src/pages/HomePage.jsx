@@ -1,81 +1,122 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { itemService } from '../services/api';
-import './HomePage.css';
+import ItemCard from '../components/ItemCard';
 
 function HomePage({ refreshTrigger }) {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filterCategory, setFilterCategory] = useState('');
 
   useEffect(() => {
-    const fetchItems = async () => {
-      try {
-        setLoading(true);
-        const data = await itemService.getAllItems();
-        setItems(data);
-        setError(null);
-      } catch (err) {
-        setError('Failed to fetch items. Please try again later.');
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchItems();
   }, [refreshTrigger]);
 
-  const handleDelete = async (id) => {
-    if (window.confirm('Are you sure you want to delete this item?')) {
-      try {
-        await itemService.deleteItem(id);
-        setItems(items.filter(item => item._id !== id));
-      } catch (err) {
-        setError('Failed to delete item. Please try again.');
-        console.error(err);
-      }
+  const fetchItems = async () => {
+    try {
+      setLoading(true);
+      const data = await itemService.getAllItems();
+      setItems(data);
+      setError(null);
+    } catch (err) {
+      setError('Failed to fetch items. Please try again.');
+      console.error('Error fetching items:', err);
+    } finally {
+      setLoading(false);
     }
   };
+
+  const filteredItems = items.filter(item => {
+    const matchesSearch = item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         item.description.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory = filterCategory === '' || item.category === filterCategory;
+    return matchesSearch && matchesCategory;
+  });
+
+  const categories = [...new Set(items.map(item => item.category))];
+
+  if (loading) {
+    return (
+      <div className="loading-container">
+        <div className="loading-spinner"></div>
+        <p>Loading items...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="error-container">
+        <div className="error-message">
+          <h2>Error</h2>
+          <p>{error}</p>
+          <button onClick={fetchItems} className="btn btn-primary">
+            Try Again
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="home-page">
       <div className="page-header">
-        <h1>Item Inventory</h1>
-        <Link to="/add-item" className="btn btn-primary">Add New Item</Link>
+        <h1>Inventory Items</h1>
+        <Link to="/add-item" className="btn btn-primary">
+          Add New Item
+        </Link>
       </div>
 
-      {error && (
-        <div className="alert alert-error">
-          {error}
+      <div className="filters">
+        <div className="search-box">
+          <input
+            type="text"
+            placeholder="Search items..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="search-input"
+          />
         </div>
-      )}
+        
+        <div className="category-filter">
+          <select
+            value={filterCategory}
+            onChange={(e) => setFilterCategory(e.target.value)}
+            className="category-select"
+          >
+            <option value="">All Categories</option>
+            {categories.map(category => (
+              <option key={category} value={category}>
+                {category}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
 
-      {loading ? (
-        <div className="loading">Loading items...</div>
-      ) : items.length === 0 ? (
+      <div className="items-stats">
+        <p>Showing {filteredItems.length} of {items.length} items</p>
+      </div>
+
+      {filteredItems.length === 0 ? (
         <div className="empty-state">
-          <p>No items found. Add your first item to get started!</p>
+          <h2>No items found</h2>
+          <p>
+            {items.length === 0 
+              ? "You haven't added any items yet." 
+              : "No items match your search criteria."
+            }
+          </p>
+          <Link to="/add-item" className="btn btn-primary">
+            Add Your First Item
+          </Link>
         </div>
       ) : (
-        <div className="item-grid">
-          {items.map(item => (
-            <div key={item._id} className="item-card">
-              <div className="item-header">
-                <h2>{item.name}</h2>
-                <span className="category">{item.category}</span>
-              </div>
-              <p className="description">{item.description}</p>
-              <div className="item-details">
-                <span className="quantity">Quantity: {item.quantity}</span>
-                <span className="price">${item.price.toFixed(2)}</span>
-              </div>
-              <div className="item-actions">
-                <Link to={`/items/${item._id}`} className="btn btn-secondary">View</Link>
-                <Link to={`/edit-item/${item._id}`} className="btn btn-secondary">Edit</Link>
-                <button onClick={() => handleDelete(item._id)} className="btn btn-danger">Delete</button>
-              </div>
-            </div>
+        <div className="items-grid">
+          {filteredItems.map(item => (
+            <ItemCard key={item._id} item={item} />
           ))}
         </div>
       )}

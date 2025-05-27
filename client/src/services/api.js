@@ -6,9 +6,6 @@ let baseURL;
 if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
   // Development on localhost - use proxy set up in vite.config.js
   baseURL = '/api';
-} else if (window.location.hostname === '192.168.68.69') {
-  // Development on mobile/network - direct API URL
-  baseURL = 'http://192.168.68.69:3456/api';
 } else {
   // Production - use relative API path since both frontend and backend are on same domain
   baseURL = '/api';

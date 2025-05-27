@@ -1,37 +1,19 @@
 {
   "name": "inventory-manager",
   "version": "1.0.0",
-  "description": "A MERN stack inventory management application",
-  "main": "api/index.js",
+  "description": "Full-stack inventory management application",
   "scripts": {
-    "start": "node api/index.js",
-    "server": "nodemon api/index.js",
-    "client": "cd client && npm run dev",
-    "dev": "concurrently \"npm run server\" \"npm run client\"",
-    "build": "cd client && npm install && npm run build",
-    "install-client": "cd client && npm install",
-    "vercel-build": "cd client && npm install && npm run build",
-    "postinstall": "npm run install-client",
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "keywords": [
-    "api",
-    "crud",
-    "express",
-    "mongodb",
-    "rest"
-  ],
-  "author": "Michael Demchak",
-  "license": "ISC",
-  "type": "commonjs",
-  "dependencies": {
-    "cors": "^2.8.5",
-    "dotenv": "^16.5.0",
-    "express": "^5.1.0",
-    "mongoose": "^8.15.0"
+    "install-all": "cd api && npm install && cd ../client && npm install",
+    "dev": "concurrently \"npm run dev:api\" \"npm run dev:client\"",
+    "dev:api": "cd api && npm run dev",
+    "dev:client": "cd client && npm run dev",
+    "build": "cd client && npm run build",
+    "start": "cd api && npm start"
   },
   "devDependencies": {
-    "concurrently": "^9.1.2",
-    "nodemon": "^3.1.10"
+    "concurrently": "^7.6.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   }
 }

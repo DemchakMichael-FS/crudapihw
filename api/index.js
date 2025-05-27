@@ -1,68 +1,58 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+require('dotenv').config();
 
-// Import the Item model with correct capitalization
-const Item = require('./Item');
-
-// Initialize express app
 const app = express();
+const PORT = process.env.PORT || 3456;
 
-// Configure CORS for all routes
-app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', '*');
-  res.header('Access-Control-Allow-Methods', 'GET, PUT, POST, DELETE, OPTIONS');
-  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+// Middleware
+app.use(cors());
+app.use(express.json());
 
-  // Handle preflight requests
-  if (req.method === 'OPTIONS') {
-    res.sendStatus(200);
-  } else {
-    next();
+// MongoDB connection
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/inventory';
+
+mongoose.connect(MONGODB_URI)
+  .then(() => console.log('Connected to MongoDB'))
+  .catch(err => console.error('MongoDB connection error:', err));
+
+// Item Schema
+const ItemSchema = new mongoose.Schema({
+  name: {
+    type: String,
+    required: true,
+    trim: true
+  },
+  description: {
+    type: String,
+    required: true,
+    trim: true
+  },
+  quantity: {
+    type: Number,
+    required: true,
+    min: 0
+  },
+  price: {
+    type: Number,
+    required: true,
+    min: 0
+  },
+  category: {
+    type: String,
+    required: true,
+    trim: true
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now
   }
 });
 
-// Enable CORS middleware
-app.use(cors({
-  origin: '*',
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Origin']
-}));
+const Item = mongoose.models.Item || mongoose.model('Item', ItemSchema);
 
-app.use(express.json());
-
-// Connect to MongoDB - optimized for serverless environment
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://Zecru:Redzone12@crudapi.8k8ldbq.mongodb.net/?retryWrites=true&w=majority&appName=Crudapi';
-
-// Cache the database connection
-let cachedDb = null;
-
-async function connectToDatabase() {
-  if (cachedDb) {
-    return cachedDb;
-  }
-
-  // Set the connection options
-  const opts = {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  };
-
-  try {
-    const conn = await mongoose.connect(MONGODB_URI, opts);
-    cachedDb = conn;
-    console.log('MongoDB connected');
-    return conn;
-  } catch (error) {
-    console.error('MongoDB connection error:', error);
-    throw error;
-  }
-}
-
-// Connect to the database immediately
-connectToDatabase().catch(console.error);
-
-// API Routes
+// Routes
 
 // GET all items
 app.get('/api/items', async (req, res) => {
@@ -74,7 +64,7 @@ app.get('/api/items', async (req, res) => {
   }
 });
 
-// GET a single item
+// GET a single item by ID
 app.get('/api/items/:id', async (req, res) => {
   try {
     const item = await Item.findById(req.params.id);
@@ -157,23 +147,19 @@ app.get('/api', (req, res) => {
   });
 });
 
+// Health check
+app.get('/', (req, res) => {
+  res.status(200).json({ message: 'Inventory API is running!' });
+});
+
 // Handle OPTIONS requests
 app.options('*', (req, res) => {
   res.status(200).end();
 });
 
-// Default route
-app.get('/', (req, res) => {
-  res.status(200).send('Inventory API is running');
+// Start server
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
 });
 
-// For local development
-const PORT = process.env.PORT || 3456;
-if (process.env.NODE_ENV !== 'production') {
-  app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-  });
-}
-
-// Export the Express API for Vercel
 module.exports = app;

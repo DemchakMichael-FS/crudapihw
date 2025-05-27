@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { itemService } from '../services/api';
-import './ItemDetailPage.css';
 
 function ItemDetailPage({ refreshItems }) {
   const { id } = useParams();
@@ -9,47 +8,85 @@ function ItemDetailPage({ refreshItems }) {
   const [item, setItem] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
-    const fetchItem = async () => {
-      try {
-        setLoading(true);
-        const data = await itemService.getItemById(id);
-        setItem(data);
-        setError(null);
-      } catch (err) {
-        setError('Failed to fetch item details. Please try again later.');
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchItem();
   }, [id]);
 
-  const handleDelete = async () => {
-    if (window.confirm('Are you sure you want to delete this item?')) {
-      try {
-        await itemService.deleteItem(id);
-        refreshItems();
-        navigate('/');
-      } catch (err) {
-        setError('Failed to delete item. Please try again.');
-        console.error(err);
-      }
+  const fetchItem = async () => {
+    try {
+      setLoading(true);
+      const data = await itemService.getItemById(id);
+      setItem(data);
+      setError(null);
+    } catch (err) {
+      setError('Failed to fetch item details. Please try again.');
+      console.error('Error fetching item:', err);
+    } finally {
+      setLoading(false);
     }
   };
 
+  const handleDelete = async () => {
+    if (!window.confirm('Are you sure you want to delete this item?')) {
+      return;
+    }
+
+    try {
+      setDeleting(true);
+      await itemService.deleteItem(id);
+      refreshItems();
+      navigate('/');
+    } catch (err) {
+      setError('Failed to delete item. Please try again.');
+      console.error('Error deleting item:', err);
+    } finally {
+      setDeleting(false);
+    }
+  };
+
+  const formatPrice = (price) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD'
+    }).format(price);
+  };
+
+  const formatDate = (dateString) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
   if (loading) {
-    return <div className="loading">Loading item details...</div>;
+    return (
+      <div className="loading-container">
+        <div className="loading-spinner"></div>
+        <p>Loading item details...</p>
+      </div>
+    );
   }
 
   if (error) {
     return (
       <div className="error-container">
-        <div className="alert alert-error">{error}</div>
-        <Link to="/" className="btn btn-primary">Back to Home</Link>
+        <div className="error-message">
+          <h2>Error</h2>
+          <p>{error}</p>
+          <div className="error-actions">
+            <button onClick={fetchItem} className="btn btn-primary">
+              Try Again
+            </button>
+            <Link to="/" className="btn btn-secondary">
+              Back to Home
+            </Link>
+          </div>
+        </div>
       </div>
     );
   }
@@ -57,8 +94,13 @@ function ItemDetailPage({ refreshItems }) {
   if (!item) {
     return (
       <div className="error-container">
-        <div className="alert alert-error">Item not found.</div>
-        <Link to="/" className="btn btn-primary">Back to Home</Link>
+        <div className="error-message">
+          <h2>Item Not Found</h2>
+          <p>The item you're looking for doesn't exist.</p>
+          <Link to="/" className="btn btn-primary">
+            Back to Home
+          </Link>
+        </div>
       </div>
     );
   }
@@ -66,37 +108,57 @@ function ItemDetailPage({ refreshItems }) {
   return (
     <div className="item-detail-page">
       <div className="page-header">
-        <h1>{item.name}</h1>
-        <div className="item-actions">
-          <Link to="/" className="btn btn-secondary">Back</Link>
-          <Link to={`/edit-item/${id}`} className="btn btn-primary">Edit</Link>
-          <button onClick={handleDelete} className="btn btn-danger">Delete</button>
+        <Link to="/" className="back-link">
+          ← Back to Items
+        </Link>
+        <div className="page-actions">
+          <Link to={`/edit-item/${item._id}`} className="btn btn-secondary">
+            Edit Item
+          </Link>
+          <button 
+            onClick={handleDelete} 
+            className="btn btn-danger"
+            disabled={deleting}
+          >
+            {deleting ? 'Deleting...' : 'Delete Item'}
+          </button>
         </div>
       </div>
 
       <div className="item-detail-card">
-        <div className="item-category">
-          <span className="label">Category:</span>
-          <span className="category">{item.category}</span>
+        <div className="item-header">
+          <h1 className="item-title">{item.name}</h1>
+          <span className="item-category-badge">{item.category}</span>
         </div>
 
-        <div className="item-section">
-          <h2>Description</h2>
-          <p>{item.description}</p>
-        </div>
+        <div className="item-content">
+          <div className="item-description">
+            <h3>Description</h3>
+            <p>{item.description}</p>
+          </div>
 
-        <div className="item-info">
-          <div className="info-item">
-            <span className="label">Quantity:</span>
-            <span className="value">{item.quantity}</span>
-          </div>
-          <div className="info-item">
-            <span className="label">Price:</span>
-            <span className="value price">${item.price.toFixed(2)}</span>
-          </div>
-          <div className="info-item">
-            <span className="label">Added on:</span>
-            <span className="value">{new Date(item.createdAt).toLocaleDateString()}</span>
+          <div className="item-details-grid">
+            <div className="detail-item">
+              <h4>Quantity</h4>
+              <p className="detail-value">{item.quantity}</p>
+            </div>
+
+            <div className="detail-item">
+              <h4>Price</h4>
+              <p className="detail-value price">{formatPrice(item.price)}</p>
+            </div>
+
+            <div className="detail-item">
+              <h4>Total Value</h4>
+              <p className="detail-value total-value">
+                {formatPrice(item.price * item.quantity)}
+              </p>
+            </div>
+
+            <div className="detail-item">
+              <h4>Date Added</h4>
+              <p className="detail-value">{formatDate(item.createdAt)}</p>
+            </div>
           </div>
         </div>
       </div>
