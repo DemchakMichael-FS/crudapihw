@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const { authenticateToken, optionalAuth } = require('../middleware/auth');
 const {
   getAllItems,
   getItemById,
@@ -8,19 +9,19 @@ const {
   deleteItem
 } = require('../controllers/itemController');
 
-// GET all items
-router.get('/', getAllItems);
+// GET all items (public, but can show user-specific data if authenticated)
+router.get('/', optionalAuth, getAllItems);
 
-// GET a single item by ID
-router.get('/:id', getItemById);
+// GET a single item by ID (public)
+router.get('/:id', optionalAuth, getItemById);
 
-// POST a new item
-router.post('/', createItem);
+// POST a new item (protected)
+router.post('/', authenticateToken, createItem);
 
-// PUT update an item
-router.put('/:id', updateItem);
+// PUT update an item (protected)
+router.put('/:id', authenticateToken, updateItem);
 
-// DELETE an item
-router.delete('/:id', deleteItem);
+// DELETE an item (protected)
+router.delete('/:id', authenticateToken, deleteItem);
 
 module.exports = router;

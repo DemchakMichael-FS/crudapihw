@@ -188,21 +188,29 @@ app.get('/api/health', async (req, res) => {
 
 // Import routes
 const itemRoutes = require('./routes/items');
+const userRoutes = require('./routes/users');
 
 // Routes
 app.use('/api/items', itemRoutes);
+app.use('/api/users', userRoutes);
 
 // API info route
 app.get('/api', (req, res) => {
   res.status(200).json({
     message: 'Welcome to the Inventory API',
     endpoints: {
+      auth: {
+        register: 'POST /api/users/register',
+        login: 'POST /api/users/login',
+        profile: 'GET /api/users/profile (protected)',
+        update_profile: 'PUT /api/users/profile (protected)'
+      },
       items: {
-        get_all: '/api/items',
-        get_one: '/api/items/:id',
-        create: '/api/items',
-        update: '/api/items/:id',
-        delete: '/api/items/:id'
+        get_all: 'GET /api/items',
+        get_one: 'GET /api/items/:id',
+        create: 'POST /api/items (protected)',
+        update: 'PUT /api/items/:id (protected)',
+        delete: 'DELETE /api/items/:id (protected)'
       }
     }
   });
