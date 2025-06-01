@@ -1,9 +1,12 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { useState } from 'react';
 import Navbar from './components/Navbar';
+import ProtectedRoute from './components/ProtectedRoute';
 import HomePage from './pages/HomePage';
 import ItemDetailPage from './pages/ItemDetailPage';
 import ItemFormPage from './pages/ItemFormPage';
+import Login from './components/Login';
+import Register from './components/Register';
 import './App.css';
 
 function App() {
@@ -21,9 +24,25 @@ function App() {
           <main className="container">
             <Routes>
               <Route path="/" element={<HomePage refreshTrigger={refreshTrigger} />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
               <Route path="/items/:id" element={<ItemDetailPage refreshItems={refreshItems} />} />
-              <Route path="/add-item" element={<ItemFormPage refreshItems={refreshItems} />} />
-              <Route path="/edit-item/:id" element={<ItemFormPage refreshItems={refreshItems} />} />
+              <Route
+                path="/add-item"
+                element={
+                  <ProtectedRoute>
+                    <ItemFormPage refreshItems={refreshItems} />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/edit-item/:id"
+                element={
+                  <ProtectedRoute>
+                    <ItemFormPage refreshItems={refreshItems} />
+                  </ProtectedRoute>
+                }
+              />
             </Routes>
           </main>
         </div>

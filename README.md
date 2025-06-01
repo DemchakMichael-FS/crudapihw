@@ -101,6 +101,10 @@ npx expo start
 
 I deployed this app on Vercel with both frontend and backend working seamlessly. The project is structured for easy Vercel deployment with automatic builds.
 
+**Live Demo**: [https://crudapihw-git-production-michaels-projects-3fc8909e.vercel.app](https://crudapihw-git-production-michaels-projects-3fc8909e.vercel.app)
+
+*Note: App is fully connected to MongoDB Atlas database with real CRUD functionality.*
+
 ## Project Structure
 
 ```
@@ -112,6 +116,4 @@ I deployed this app on Vercel with both frontend and backend working seamlessly.
 └── package.json        # Root package with scripts
 ```
 
-## License
 
-This project is under the ISC License.
