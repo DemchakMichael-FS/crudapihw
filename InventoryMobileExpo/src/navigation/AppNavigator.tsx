@@ -1,13 +1,18 @@
 import React from 'react';
+import { View, ActivityIndicator, StyleSheet, TouchableOpacity, Text } from 'react-native';
 import {NavigationContainer} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
+
+// Context
+import { AuthProvider, useAuth } from '../context/AuthContext';
 
 // Screens
 import HomeScreen from '../screens/HomeScreen';
 import ItemDetailScreen from '../screens/ItemDetailScreen';
 import AddItemScreen from '../screens/AddItemScreen';
 import EditItemScreen from '../screens/EditItemScreen';
+import AuthNavigator from './AuthNavigator';
 
 // Types
 export type RootStackParamList = {
@@ -26,6 +31,8 @@ const Stack = createStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator<TabParamList>();
 
 function TabNavigator() {
+  const { user, logout } = useAuth();
+
   return (
     <Tab.Navigator
       screenOptions={{
@@ -48,8 +55,15 @@ function TabNavigator() {
         name="Home"
         component={HomeScreen}
         options={{
-          title: 'Inventory',
+          title: `Welcome, ${user?.username || 'User'}!`,
           tabBarLabel: 'Items',
+          headerRight: () => (
+            <View style={styles.headerRight}>
+              <TouchableOpacity onPress={logout} style={styles.logoutButton}>
+                <Text style={styles.logoutText}>Logout</Text>
+              </TouchableOpacity>
+            </View>
+          ),
         }}
       />
       <Tab.Screen
@@ -64,35 +78,80 @@ function TabNavigator() {
   );
 }
 
+function AppContent() {
+  const { isAuthenticated, isLoading, checkAuthStatus } = useAuth();
+
+  if (isLoading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#2c5282" />
+      </View>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return <AuthNavigator onAuthSuccess={checkAuthStatus} />;
+  }
+
+  return (
+    <Stack.Navigator
+      screenOptions={{
+        headerStyle: {
+          backgroundColor: '#2c5282',
+        },
+        headerTintColor: '#ffffff',
+        headerTitleStyle: {
+          fontWeight: 'bold',
+        },
+      }}>
+      <Stack.Screen
+        name="Main"
+        component={TabNavigator}
+        options={{headerShown: false}}
+      />
+      <Stack.Screen
+        name="ItemDetail"
+        component={ItemDetailScreen}
+        options={{title: 'Item Details'}}
+      />
+      <Stack.Screen
+        name="EditItem"
+        component={EditItemScreen}
+        options={{title: 'Edit Item'}}
+      />
+    </Stack.Navigator>
+  );
+}
+
+const styles = StyleSheet.create({
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#f7fafc',
+  },
+  headerRight: {
+    marginRight: 16,
+  },
+  logoutButton: {
+    backgroundColor: '#e53e3e',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 6,
+  },
+  logoutText: {
+    color: 'white',
+    fontSize: 14,
+    fontWeight: '600',
+  },
+});
+
 export default function AppNavigator() {
   return (
-    <NavigationContainer>
-      <Stack.Navigator
-        screenOptions={{
-          headerStyle: {
-            backgroundColor: '#2c5282',
-          },
-          headerTintColor: '#ffffff',
-          headerTitleStyle: {
-            fontWeight: 'bold',
-          },
-        }}>
-        <Stack.Screen
-          name="Main"
-          component={TabNavigator}
-          options={{headerShown: false}}
-        />
-        <Stack.Screen
-          name="ItemDetail"
-          component={ItemDetailScreen}
-          options={{title: 'Item Details'}}
-        />
-        <Stack.Screen
-          name="EditItem"
-          component={EditItemScreen}
-          options={{title: 'Edit Item'}}
-        />
-      </Stack.Navigator>
-    </NavigationContainer>
+    <AuthProvider>
+      <NavigationContainer>
+        <AppContent />
+      </NavigationContainer>
+    </AuthProvider>
   );
 }
